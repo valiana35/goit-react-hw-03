@@ -1,50 +1,53 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useId } from 'react';
+import { nanoid } from 'nanoid';
 import * as Yup from "yup";
+import css from './ContactForm.module.css';
 
 const FeedBackSchema = Yup.object().shape({
-    name: Yup.string().trim().min(2, "Too short!").max(60, "Too long!").required("Required"),
-    number: Yup.number().min(2, "Too short!").required("Required"),
+    name: Yup.string().trim().min(3, "Too short!").max(50, "Too long!").required("Required"),
+    number: Yup.string().min(3, "Too short!").max(50, "Too long!").required("Required"),
 });
 
-const initialContakts = {
+const initialContacts = {
     name: "",
     number: "",
 };
 
-const ContactForm = ({onAdd}) => {
+const ContactForm = ({ onAdd }) => {
 
     const nameFieldId = useId();
     const numberField = useId();
 
-    const handleSubmit = (evt, values, actions) => {
-        console.log(values);
-        onAdd({ 
-            id: Date.now(), 
-            name: evt.target.elements.name.value, 
-            number: evt.target.elements.number.value
-        });
+    const handleSubmit = (values, actions) => {
+        const newContact = {
+            ...values,
+            id: nanoid(),
+            name: values.name.trim(),
+            number: values.number
+        };
+        onAdd(newContact);
         actions.resetForm();
     };
 
     return (
         <Formik
-           initialValues={initialContakts}
+           initialValues={initialContacts}
            onSubmit={handleSubmit}
            validationSchema={FeedBackSchema}
            >
-            <Form>
-                <div>
+            <Form className={css.form}>
+                <div className={css.formItem}>
                     <label htmlFor={nameFieldId}>Name</label>
-                    <Field type="text" name="name" id={nameFieldId} />
+                    <Field className={css.input} type="text" name="name" id={nameFieldId} />
                     <ErrorMessage name="userName" as="span" />
                 </div>
-                <div>
+                <div className={css.formItem}>
                     <label htmlFor={numberField}>Number</label>
-                    <Field type="number" name="number" id={numberField} />
+                    <Field className={css.input} type="string" name="number" id={numberField} />
                     <ErrorMessage name="number" as="span" />
                 </div>
-                <button type="submit">Add contact</button>
+                <button className={css.formBtn} type="submit">Add contact</button>
             </Form>
            </Formik>
     );
